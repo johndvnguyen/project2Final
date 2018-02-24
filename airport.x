@@ -33,7 +33,7 @@ union placeair_ret switch(int err) {
 
 program SEND_COORD_PROG{
 	version SEND_COORD_VERS {
-		airportList COORD(searchedCity) = 1;
+		placeair_ret COORD(searchedCity) = 1;
 	} = 1;
-} = 0x33337778;
+} = 0x31122173;
 

@@ -33,7 +33,7 @@ send_coord_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 
 	case COORD:
 		_xdr_argument = (xdrproc_t) xdr_searchedCity;
-		_xdr_result = (xdrproc_t) xdr_airportList;
+		_xdr_result = (xdrproc_t) xdr_placeair_ret;
 		local = (char *(*)(char *, struct svc_req *)) coord_1_svc;
 		break;
 

@@ -16,6 +16,8 @@
 #define SIG_PF void(*)(int)
 #endif
 
+char * airportHost=NULL;
+
 static void
 send_place_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
@@ -56,8 +58,6 @@ send_place_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 	}
 	return;
 }
-
-char* airportHost = NULL;
 
 int
 main (int argc, char **argv)

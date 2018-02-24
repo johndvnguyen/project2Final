@@ -54,27 +54,20 @@ struct placeair_ret {
 };
 typedef struct placeair_ret placeair_ret;
 
-#define SEND_PLACE_PROG 0x33337777
+#define SEND_PLACE_PROG 0x31122172
 #define SEND_PLACE_VERS 1
-#define SEND_COORD_PROG 0x33337778
+
+#define SEND_COORD_PROG 0x31122173
 #define SEND_COORD_VERS 1
 
 #if defined(__STDC__) || defined(__cplusplus)
 #define PLACE 1
-#define COORD 1
-extern  airportList * coord_1(searchedCity *, CLIENT *);
-extern  airportList * coord_1_svc(searchedCity *, struct svc_req *);
-extern int send_coord_prog_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 extern  placeair_ret * place_1(placeName *, CLIENT *);
 extern  placeair_ret * place_1_svc(placeName *, struct svc_req *);
 extern int send_place_prog_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
 #define PLACE 1
-#define COORD 1
-extern  airportList * coord_1();
-extern  airportList * coord_1_svc();
-extern int send_coord_prog_1_freeresult ();
 extern  placeair_ret * place_1();
 extern  placeair_ret * place_1_svc();
 extern int send_place_prog_1_freeresult ();
