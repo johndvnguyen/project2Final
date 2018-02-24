@@ -63,7 +63,7 @@ int
 main (int argc, char **argv)
 {	
 	if (argc < 2) {
-		printf ("usage: %s airport-location.txt\n", argv[0]);
+		printf ("usage: %s airport-locations.txt\n", argv[0]);
 		exit (1);
 	}
 	airport_fpath = argv[1];

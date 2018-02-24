@@ -143,9 +143,10 @@ struct kdNode * readFile(char * path){
 	int lineCount = getLineCount(path);
 	kdNode nodeArray[lineCount];
 	int nodeCount = 0;
-
+	
 	FILE * fp;
 	fp = fopen(path,"r");
+	printf("file Opened");
 	char line[255]="";
 	char airport_code[4]="";
 	char city[100] = "";
@@ -308,9 +309,10 @@ void nearest(struct kdNode *root, struct kdNode *nd, int i, int dim,
     if (!*best_dist) return;
  
     if (++i >= dim) i = 0;
- 
+ 	//printf("search right\n");
     nearest(dx > 0 ? root->left : root->right, nd, i, dim, best, best_dist);
-    if (dx2 >= *best_dist) return;
+    if (dx2 >= *best_dist) return;	
+	//printf("search left\n");
     nearest(dx > 0 ? root->right : root->left, nd, i, dim, best, best_dist);
 }
  
@@ -330,7 +332,7 @@ coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 	}
 	printf("got to the airport server\n");
 
-	printf("%s, %s, %f, %f\n", argp->city, argp->state, argp->lat, argp->lon);
+	//printf("%s, %s, %f, %f\n", argp->city, argp->state, argp->lat, argp->lon);
 	//static airportNode  head;
 	airportList head;
 	airportList temp,p;
@@ -340,13 +342,15 @@ coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 	
 	
 	kdTree tree = readFile(airport_fpath);
+	
 	printf("tree_created \n");
 	printf("tree root airport_code: %s \n",tree->airport_code);
 	printf("tree root's leftnode airport_code: %s \n\n",(tree->left)->airport_code);
 	airportList found = NULL;
 
 	double best_dist =DBL_MAX;
-	kdNode *searchNode = createNode(40.704, -73.91,"NEW York", "there");
+	kdNode *searchNode = createNode(foundCity.lat, foundCity.lon,"foundCity.City", "foundCity.state");
+	//kdNode *searchNode = createNode(foundCity.lat, foundCity.lon,"foundCity.City", "foundCity.state");
 	nearest(tree,searchNode, 0 , 2, &found, &best_dist);
 
 	printf("searching for (%g, %g)\n\n", searchNode->dims[0], searchNode->dims[1]);
@@ -356,7 +360,7 @@ coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 	int i = 0;
 	while(i<5){
 		printf("found %s: city: %s, state %s, dist %g\n", found->code,found->name,found->state, found->distance);    
-		node=node->next;
+		found=found->next;
 		i++;
 	}
 	*/
