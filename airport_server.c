@@ -299,10 +299,10 @@ void nearest(struct kdNode *root, struct kdNode *nd, int i, int dim,
     // Check to see if we update best
     if (!*best || d < *best_dist) {
         *best_dist = d;
-        //struct airportNode * createAirNode(char * city, char * airport_code,float distance,airportNode next)
 	printf("creating airport node\n");
         airportNode * newNode = createAirNode(root->city,root->airport_code,d,*best);
         *best = newNode;
+	//push()
     }
  
     /* if chance of exact match is high */
@@ -317,6 +317,37 @@ void nearest(struct kdNode *root, struct kdNode *nd, int i, int dim,
 }
  
 
+void push(airportNode ** head, float p)
+{
+    airportNode * start = (*head);
+ 
+    // Create new Node
+    airportNode * temp = createAirNode("temp", "CODE", p,(airportNode*) NULL);
+ 
+    // Special Case: The head of list has lesser
+    // priority than new node. So insert new
+    // node before head node and change head node.
+    if ((*head)->distance > p) {
+ 
+        // Insert New Node before head
+        temp->next = *head;
+        (*head) = temp;
+    }
+    else {
+ 
+        // Traverse the list and find a
+        // position to insert new node
+        while (start->next != NULL &&
+               start->next->distance < p) {
+            start = start->next;
+        }
+ 
+        // Either at the ends of the list
+        // or at required position
+        temp->next = start->next;
+        start->next = temp;
+    }
+}
 
 
 placeair_ret *
@@ -350,7 +381,7 @@ coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 
 	double best_dist =DBL_MAX;
 	kdNode *searchNode = createNode(foundCity.lat, foundCity.lon,"foundCity.City", "foundCity.state");
-	//kdNode *searchNode = createNode(foundCity.lat, foundCity.lon,"foundCity.City", "foundCity.state");
+	//kdNode *searchNode = createNode(47.41, -122.20,"foundCity.City", "foundCity.state");
 	nearest(tree,searchNode, 0 , 2, &found, &best_dist);
 
 	printf("searching for (%g, %g)\n\n", searchNode->dims[0], searchNode->dims[1]);
