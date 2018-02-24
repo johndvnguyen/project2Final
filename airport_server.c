@@ -29,6 +29,7 @@ coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 	}
 	printf("got to the airport server\n");
 
+	printf("%s, %s, %f, %f\n", argp->city, argp->state, argp->lat, argp->lon);
 	//static airportNode  head;
 	airportList head;
 	airportList temp,p;

@@ -54,10 +54,10 @@ struct placeair_ret {
 };
 typedef struct placeair_ret placeair_ret;
 
-#define SEND_PLACE_PROG 0x31122172
+#define SEND_PLACE_PROG 0x33337771
 #define SEND_PLACE_VERS 1
 
-#define SEND_COORD_PROG 0x31122173
+#define SEND_COORD_PROG 0x33337773
 #define SEND_COORD_VERS 1
 
 #if defined(__STDC__) || defined(__cplusplus)

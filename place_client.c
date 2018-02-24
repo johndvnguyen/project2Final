@@ -6,15 +6,43 @@
 
 #include "place.h"
 
+char* pString(char* city, char* state) {
+	
+	static char userSearch[50];
+	int j = 0;
+	int count = 0;
+	int n;
+	
+	// Concatenate state and city
+	strcpy(userSearch, state);
+	strcat(userSearch, city);
+	
+	// Make all characters lowercase
+	while(userSearch[j]) {
+		userSearch[j] = tolower(userSearch[j]);
+		j++;
+	}
+
+	// Get rid of all spaces
+	for(n = 0; n < strlen(userSearch); ++n) {
+		if (userSearch[n] != ' ')
+			userSearch[count++] = userSearch[n];
+	}
+
+	userSearch[count] = '\0';
+	//printf("Searched for: %s\n", userSearch);
+	return &userSearch[0];
+}
 
 void
 send_place_prog_1(char *host, char *city, char *state)
 {
 	CLIENT *clnt;
 	placeair_ret  *result_1;
-	placeName  place_1_arg;
-
-	place_1_arg = "seattle\n";
+	placeName  place_arg;
+	char *str;
+	// Prep the string to send to server
+	str = pString(city, state);
 
 #ifndef	DEBUG
 	clnt = clnt_create (host, SEND_PLACE_PROG, SEND_PLACE_VERS, "udp");
@@ -24,14 +52,23 @@ send_place_prog_1(char *host, char *city, char *state)
 	}
 #endif	/* DEBUG */
 
-	printf("%s\n", place_1_arg);
-	result_1 = place_1(&place_1_arg, clnt);
+	printf("%s\n", str);
+
+	place_arg = &str[0];
+	printf("place_arg: %s\n", place_arg);
+	// Query the place server for the 5 nearest airports
+	result_1 = place_1(&place_arg, clnt);
+
+	// Check if function return was successful
 	if (result_1 == (placeair_ret *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
 
+	// Print the results
 	printf("%s\n", result_1->placeair_ret_u.list.list->code);
 #ifndef	DEBUG
+	
+	// Destory the client
 	clnt_destroy (clnt);
 #endif	 /* DEBUG */
 }
@@ -54,3 +91,4 @@ main (int argc, char *argv[])
 	send_place_prog_1 (host, city, state);
 exit (0);
 }
+

@@ -35,5 +35,5 @@ program SEND_COORD_PROG{
 	version SEND_COORD_VERS {
 		placeair_ret COORD(searchedCity) = 1;
 	} = 1;
-} = 0x31122173;
+} = 0x33337773;
 

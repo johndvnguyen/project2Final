@@ -6,6 +6,7 @@
 #include <math.h>
 #include <sys/queue.h>
 #include <float.h>
+#include "place.h"
 #define pi 3.14159265358979323846
 
 typedef float latitude;
@@ -16,23 +17,12 @@ typedef struct kdNode *kdTree;
 typedef struct airportNode airportNode;
 typedef struct airportNode *airportList;
 
-struct searchedCity {
-	char *city;
-	char state[3];
-	latitude lat;
-	longitude lon;
-};
-typedef char placeName[100];
-struct airportNode {
-  	char code[4];
-	placeName name;
-	char state[3];
-	float distance;
-	airportList next;  
-};
-
-
 kdNode * make_tree(struct kdNode *t, int len, int i, int dim);
+struct kdNode * createNode(latitude lat, longitude lon, char * city, char * airport_code);
+struct airportNode * createAirNode(char * city, char * airport_code,float distance,airportNode * next);
+struct kdNode * readFile(char * path);
+kdNode * make_tree(struct kdNode *t, int len, int i, int dim);
+void nearest(struct kdNode *root, struct kdNode *nd, int i, int dim, airportList *best, double *best_dist);
 
 struct kdNode {
 	float dims[2];
@@ -118,20 +108,22 @@ struct airportNode * createAirNode(char * city, char * airport_code,float distan
 	struct airportNode * temp = (struct airportNode*)malloc(sizeof(struct airportNode));
 	if (temp ==NULL)
 		printf("Error creating airportNode\n");
-        strncpy(temp->code, airport_code,4);
+        temp->code=NULL;
+        temp->state = NULL;
+	temp->name = NULL;
+        temp->code=airport_code;
+        //strncpy(temp->code, airport_code,4);
         
         char * token;
-        token= strtok(city, "," );
-        strncpy(temp->name, city,100);
-        token= strtok(NULL, " " ); 
-	strncpy(temp->state,token,2);
-        temp->state[3] = '\0';
+        token= strtok(city, ",\n" );
+        temp->name=token;
+        token= strtok(NULL, "\n" );
+        temp->state = token;
         temp->distance = distance;
         
 	temp->next = next;
 	return temp;
 }
-
 
 
 int getLineCount(char * path){
@@ -309,6 +301,7 @@ void nearest(struct kdNode *root, struct kdNode *nd, int i, int dim,
     if (!*best || d < *best_dist) {
         *best_dist = d;
         //struct airportNode * createAirNode(char * city, char * airport_code,float distance,airportNode next)
+	printf("creating airport node\n");
         airportNode * newNode = createAirNode(root->city,root->airport_code,d,*best);
         *best = newNode;
     }
