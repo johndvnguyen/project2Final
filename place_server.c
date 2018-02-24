@@ -8,12 +8,13 @@
 #include <errno.h>
 
 extern char* airportHost;
+output sharedOutput;
 
 void
 send_coord_prog_1(searchedCity *place)
 {
 	CLIENT *clnt;
-	airportList  *result_1;
+	placeair_ret  *result_1;
 	searchedCity  coord_1_arg;
 
 	coord_1_arg = *place;
@@ -28,11 +29,12 @@ send_coord_prog_1(searchedCity *place)
 #endif	/* DEBUG */
 
 	result_1 = coord_1(&coord_1_arg, clnt);
-	if (result_1 == (airportList *) NULL) {
-		clnt_perror (clnt, "call failed");
+	if (result_1 == (placeair_ret * ) NULL) {
+		clnt_perror (clnt, "call failed null");
 	}
 	printf("returned from airport server\n");
-	//printf("%s, %s, %s, %f\n", *result_1->code ,result_1->name, result_1->state, result_1->distance);
+	printf("%s\n", result_1->placeair_ret_u.list.list->code);
+	sharedOutput.list=result_1->placeair_ret_u.list.list;
 #ifndef	DEBUG
 	clnt_destroy (clnt);
 #endif	 /* DEBUG */
@@ -55,7 +57,7 @@ place_1_svc(placeName *argp, struct svc_req *rqstp)
 		result.err = errno;
 		return(&result);
 	}
-
+	
 	node->code = "124";
 	node->name = "Phoenix";
 	node->state = "AZ";
@@ -69,8 +71,12 @@ place_1_svc(placeName *argp, struct svc_req *rqstp)
 	foundPlace.state = "WA";
 	foundPlace.lat = 100.1;
 	foundPlace.lon = 100.2;
+	//after finding place we store it in the sharedOutput
+	sharedOutput.cityData=foundPlace;
 
 	printf("1: %s, %s, %f, %f\n", foundPlace.city, foundPlace.state, foundPlace.lat, foundPlace.lon);
+	//Temp dummy list data
+	/*
 	result.placeair_ret_u.list.cityData.city = foundPlace.city;
 	result.placeair_ret_u.list.cityData.state = foundPlace.state;
 	result.placeair_ret_u.list.cityData.lat = foundPlace.lat;
@@ -80,9 +86,12 @@ place_1_svc(placeName *argp, struct svc_req *rqstp)
 	result.placeair_ret_u.list.list->state = "WA";
 	result.placeair_ret_u.list.list->distance = 123.1;
 	//result.placeair_ret_u.list.list->next = "WA";
+	*/
+
+	
 	// Airport server nearest neighbor search
 	send_coord_prog_1(&foundPlace);
-
+	result.placeair_ret_u.list=sharedOutput;
 	return &result;
 	/*
 	 * insert server code here

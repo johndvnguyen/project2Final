@@ -35,6 +35,6 @@ program SEND_PLACE_PROG{
 	version SEND_PLACE_VERS {
 		placeair_ret PLACE(placeName) = 1;
 	} = 1;
-} = 0x33337777;
+} = 0x31122172;
 
 

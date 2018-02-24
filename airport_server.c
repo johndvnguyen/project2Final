@@ -14,10 +14,10 @@
 }*/
 
 
-airportList *
+placeair_ret *
 coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 {
-	static airportList  result;
+	static placeair_ret  result;
 	airportList node;
 	airportList *nodePointer;
 
@@ -27,7 +27,6 @@ coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 		//result.err = errno;
 		return(&result);
 	}
-	nodePointer = &result;
 	printf("got to the airport server\n");
 
 	//static airportNode  head;
@@ -38,11 +37,11 @@ coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 	printf("%s, %s, %f, %f\n", foundCity.city, foundCity.state, foundCity.lat, foundCity.lon);
 	// Create new node
 	//temp = createNode();
-	node->code = "123";
+	node->code = "455";
 	node->name = "Denver";
 	node->state = "CO";
 	node->distance = 25.5;
-	node->next = node;
+	node->next = NULL;
 	printf("%s, %s, %s, %f\n", node->code, node->name, node->state, node->distance);
 	/*if(head == NULL) {
 		head = temp;//(struct airportNode*)temp;
@@ -53,7 +52,10 @@ coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 		}
 		p->next = temp;
 	}*/
-
+	result.err=0;
+	result.placeair_ret_u.list.cityData=foundCity;
+	result.placeair_ret_u.list.list=node;
+	
 	return &result;
 
 }

@@ -30,7 +30,7 @@ send_place_prog_1(char *host, char *city, char *state)
 		clnt_perror (clnt, "call failed");
 	}
 
-	printf("%s\n", result_1->list.list.code);
+	printf("%s\n", result_1->placeair_ret_u.list.list->code);
 #ifndef	DEBUG
 	clnt_destroy (clnt);
 #endif	 /* DEBUG */
