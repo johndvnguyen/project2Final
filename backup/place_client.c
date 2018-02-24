@@ -66,13 +66,6 @@ send_place_prog_1(char *host, char *city, char *state)
 
 	// Print the results
 	printf("%s\n", result_1->placeair_ret_u.list.list->code);
-	airportList found = result_1->placeair_ret_u.list.list; 
-	int i = 0;
-		while(i<5){
-		printf("found %s: city: %s, state %s, dist %g\n", found->code,found->name,found->state, found->distance);    
-		found=found->next;
-		i++;
-	}
 #ifndef	DEBUG
 	
 	// Destory the client
