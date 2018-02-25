@@ -132,7 +132,6 @@ int getLineCount(char * path){
 		count++;
 	}
 	fclose(fp);
-	printf("There are %d lines in this file \n",count);
 	return count;
 }
 
@@ -197,12 +196,11 @@ struct kdNode * readFile(char * path){
 
 				//token= strtok(NULL, " " );
 				
-				printf("airport_code: %s, lat: %f, long: %f, city: %s \n",airport_code,lat,lon,city);
 				kdNode  temp = *(createNode(lat,lon,city,airport_code));
 				
 				//Add the node to an array
-					nodeArray[nodeCount] = temp;
-					nodeCount++;
+				nodeArray[nodeCount] = temp;
+				nodeCount++;
 
 			}
 		
