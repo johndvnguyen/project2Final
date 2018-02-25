@@ -111,15 +111,18 @@ struct airportNode * createAirNode(char * city, char * airport_code,float distan
 	temp->name = NULL;
         temp->code=airport_code;
         //strncpy(temp->code, airport_code,4);
-        
+        printf("aircode Created\n");
         char * token;
         token= strtok(city, ",\n" );
         temp->name=token;
+	printf("city created\n");
         token= strtok(NULL, "\n" );
         temp->state = token;
+	printf("state created\n");
         temp->distance = distance;
-        
+        printf("distance createde\n");
 	temp->next = next;
+	printf("next airportNode\n");
 	return temp;
 }
 
@@ -285,7 +288,41 @@ kdNode * make_tree(struct kdNode *t, int len, int i, int dim)
     //	printf("The Tree returns \n");
     return n;
 }
-int visited = 0;
+
+void push(airportNode ** head, airportNode * new, float p)
+{
+	
+    airportNode * start = (*head);
+ 	printf("got to push\n");
+    // Create new Node
+
+    // Special Case: The head of list has lesser
+    // priority than new node. So insert new
+    // node before head node and change head node.
+    if ((*head)->distance > p) {
+ 	printf("distance: %f, p: %f", (*head)->distance , p);
+        // Insert New Node before head
+        new->next = *head;
+        (*head) = new;
+    }
+    else {
+ 
+        // Traverse the list and find a
+        // position to insert new node
+        while (start->next != NULL &&
+               start->next->distance < p) {
+            start = start->next;
+        }
+ 
+        // Either at the ends of the list
+        // or at required position
+        new->next = start->next;
+        start->next = new;
+    }
+}
+
+
+int count = 0;
 void nearest(struct kdNode *root, struct kdNode *nd, int i, int dim,
         airportList *best, double *best_dist)
 {
@@ -297,13 +334,17 @@ void nearest(struct kdNode *root, struct kdNode *nd, int i, int dim,
     dx2 = dx * dx;
     
     // Check to see if we update best
-    if (!*best || d < *best_dist) {
-        *best_dist = d;
+    //if (!*best || d < *best_dist) {
+    //    *best_dist = d;
 	printf("creating airport node\n");
         airportNode * newNode = createAirNode(root->city,root->airport_code,d,*best);
-        *best = newNode;
-	//push()
-    }
+    //    *best = newNode;
+	printf("pushing new");
+	if (*best == NULL){
+	*best = newNode;
+	}else
+	push(best,newNode,d);
+    //}
  
     /* if chance of exact match is high */
     if (!*best_dist) return;
@@ -317,37 +358,6 @@ void nearest(struct kdNode *root, struct kdNode *nd, int i, int dim,
 }
  
 
-void push(airportNode ** head, float p)
-{
-    airportNode * start = (*head);
- 
-    // Create new Node
-    airportNode * temp = createAirNode("temp", "CODE", p,(airportNode*) NULL);
- 
-    // Special Case: The head of list has lesser
-    // priority than new node. So insert new
-    // node before head node and change head node.
-    if ((*head)->distance > p) {
- 
-        // Insert New Node before head
-        temp->next = *head;
-        (*head) = temp;
-    }
-    else {
- 
-        // Traverse the list and find a
-        // position to insert new node
-        while (start->next != NULL &&
-               start->next->distance < p) {
-            start = start->next;
-        }
- 
-        // Either at the ends of the list
-        // or at required position
-        temp->next = start->next;
-        start->next = temp;
-    }
-}
 
 
 placeair_ret *
@@ -386,22 +396,28 @@ coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 
 	printf("searching for (%g, %g)\n\n", searchNode->dims[0], searchNode->dims[1]);
 	//print out results
-	
-	/*
+	head = found;
+	//REMOVE ALL NODES AFTER THE 5th
 	int i = 0;
-	while(i<5){
-		printf("found %s: city: %s, state %s, dist %g\n", found->code,found->name,found->state, found->distance);    
-		found=found->next;
+	while(i<5){  
+		head=head->next;
 		i++;
 	}
-	*/
+	head->next=NULL;
+	
 
 
 	
 	result.err=0;
 	result.placeair_ret_u.list.cityData=foundCity;
 	result.placeair_ret_u.list.list=found;
-	
+	/*
+	i=0
+	while(i<6){
+		printf("found %s: city: %s, state %s, dist %g\n", found->code,found->name,found->state, found->distance);    
+		found=found->next;
+		i++;
+	}*/
 	return &result;
 
 }
