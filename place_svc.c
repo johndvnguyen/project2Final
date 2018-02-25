@@ -59,6 +59,8 @@ send_place_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 	return;
 }
 
+
+// Main of place server
 int
 main (int argc, char **argv)
 {
@@ -66,8 +68,10 @@ main (int argc, char **argv)
 		printf ("usage: %s server_host\n", argv[0]);
 		exit (1);
 	}
+	
+	// Get airport host
 	airportHost = argv[1];
-
+	
 	register SVCXPRT *transp;
 
 	pmap_unset (SEND_PLACE_PROG, SEND_PLACE_VERS);
