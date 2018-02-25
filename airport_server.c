@@ -110,19 +110,14 @@ struct airportNode * createAirNode(char * city, char * airport_code,float distan
         temp->state = NULL;
 	temp->name = NULL;
         temp->code=airport_code;
-        //strncpy(temp->code, airport_code,4);
-        printf("aircode Created\n");
         char * token;
         token= strtok(city, ",\n" );
         temp->name=token;
-	printf("city created\n");
         token= strtok(NULL, "\n" );
         temp->state = token;
-	printf("state created\n");
         temp->distance = distance;
-        printf("distance createde\n");
 	temp->next = next;
-	printf("next airportNode\n");
+
 	return temp;
 }
 
@@ -158,7 +153,7 @@ struct kdNode * readFile(char * path){
 	longitude lon;
 	char * token;
 
-	
+	//make an array to do a quick sort to find median value
 
 	kdNode * root=nodeArray;
 	kdNode * oldNode = root;
@@ -181,61 +176,43 @@ struct kdNode * readFile(char * path){
                                 //City
 				token= strtok(NULL, "	" );
 				strcpy(city,token);
-				printf ("1 %s",city);
+
 
 				//Start the string token to start of temp
 				token= strtok(locationtemp, " " ); 
 				strncpy(airport_code,&token[1],3);
 				airport_code[3]='\0';
 				//Airport code
-				printf ("2 %s\n",token);
+
 				token= strtok(NULL, " " );
 				
 				
 				//Latitude
                                 lat = atof(token);
-				printf ("3 %s\n",token);
+
                                 
 				token= strtok(NULL, " " );
 				lon = atof(token);
 				//Longitude
-				printf ("4 %s\n",token);
+
 				//token= strtok(NULL, " " );
 				
 				printf("airport_code: %s, lat: %f, long: %f, city: %s \n",airport_code,lat,lon,city);
 				kdNode  temp = *(createNode(lat,lon,city,airport_code));
 				
-				//printf("kdnode filled\n");
 				//Add the node to an array
-					printf("adding node to array airport_code: %s, lat: %f, long:%f city: %s \n",temp.airport_code,temp.dims[0],temp.dims[1],temp.city);
 					nodeArray[nodeCount] = temp;
-					printf("address of temp:%p \n", temp);
-					printf("node %d created: airport_code: %s  address: %p \n", nodeCount,nodeArray[nodeCount].airport_code,(nodeArray[nodeCount]));
-					if (nodeCount>1) 
-						printf("node previous %d: airport_code: %s address: %p \n", nodeCount-1,nodeArray[nodeCount-1].airport_code,nodeArray[nodeCount-1]);
 					nodeCount++;
 
 			}
 		
 		}
 		fclose(fp);
-		/*
-		printf("printing nodes \n");
-		while (oldNode->left!=NULL){
-			printf("airport: %s \n",(oldNode->airport_code));
-			oldNode=oldNode->left;
-		}
-
-		*/
-		printf("There are %d lines in this file \n",lineCount);
-		printf("%d nodes created \n",nodeCount);
 		
-		printf("airport_code: %s, city: %s \n",nodeArray[1].airport_code,nodeArray[1].city);
-		printf("airport_code: %s, city: %s \n",nodeArray[22].airport_code,nodeArray[22].city);
 		kdNode * result = (struct kdNode*)malloc(sizeof(struct kdNode));
+		//make a kdtree with the array
 		result = make_tree(nodeArray, nodeCount-1,0,2);
-                //result = make_tree(nodeArray, &nodeArray[1070],0,2);
-		printf("airport_code: %s, city: %s \n",result->airport_code,result->city);
+                
 		return result;
 }
 
@@ -276,7 +253,7 @@ struct kdNode * find_median(struct kdNode *start, struct kdNode *end, int idx)
 kdNode * make_tree(struct kdNode *t, int len, int i, int dim)
 {
     struct kdNode *n;
- 	//printf("The Tree Grows \n");
+ 	
     if (!len) return 0;
  
     if ((n = find_median(t, t + len, i))) {
@@ -285,22 +262,22 @@ kdNode * make_tree(struct kdNode *t, int len, int i, int dim)
         n->left  = make_tree(t, n - t, i, dim);
         n->right = make_tree(n + 1, t + len - (n + 1), i, dim);
     }
-    //	printf("The Tree returns \n");
+    
     return n;
 }
-
+// Linked list priority queuefunction from https://www.geeksforgeeks.org/priority-queue-using-linked-list/
 void push(airportNode ** head, airportNode * new, float p)
 {
 	
     airportNode * start = (*head);
- 	printf("got to push\n");
+
     // Create new Node
 
     // Special Case: The head of list has lesser
     // priority than new node. So insert new
     // node before head node and change head node.
     if ((*head)->distance > p) {
- 	printf("distance: %f, p: %f", (*head)->distance , p);
+
         // Insert New Node before head
         new->next = *head;
         (*head) = new;
@@ -321,7 +298,7 @@ void push(airportNode ** head, airportNode * new, float p)
     }
 }
 
-
+//based on the rosetta code https://rosettacode.org/wiki/K-d_tree
 int count = 0;
 void nearest(struct kdNode *root, struct kdNode *nd, int i, int dim,
         airportList *best, double *best_dist)
@@ -333,27 +310,22 @@ void nearest(struct kdNode *root, struct kdNode *nd, int i, int dim,
     dx = root->dims[i] - nd->dims[i];
     dx2 = dx * dx;
     
-    // Check to see if we update best
-    //if (!*best || d < *best_dist) {
-    //    *best_dist = d;
-	printf("creating airport node\n");
+	//create a new node using data from current kdNode
         airportNode * newNode = createAirNode(root->city,root->airport_code,d,*best);
-    //    *best = newNode;
-	printf("pushing new");
+    
+	//If there have been no nodes added to the linked list create the start
 	if (*best == NULL){
 	*best = newNode;
-	}else
+	}else //If theres already nodes we need to prioritize them
 	push(best,newNode,d);
-    //}
- 
-    /* if chance of exact match is high */
+     
     if (!*best_dist) return;
  
     if (++i >= dim) i = 0;
- 	//printf("search right\n");
+	//rescursive search
     nearest(dx > 0 ? root->left : root->right, nd, i, dim, best, best_dist);
     if (dx2 >= *best_dist) return;	
-	//printf("search left\n");
+	//search left tree if distance too large
     nearest(dx > 0 ? root->right : root->left, nd, i, dim, best, best_dist);
 }
  
@@ -366,58 +338,46 @@ coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 	static placeair_ret  result;
 	airportList node;
 	node = (airportNode*)malloc(sizeof(airportNode));
-
+	result.err=0;
 	if(node == (airportNode *) NULL) {
 		//result.err = errno;
 		return(&result);
 	}
-	printf("got to the airport server\n");
 
-	//printf("%s, %s, %f, %f\n", argp->city, argp->state, argp->lat, argp->lon);
-	//static airportNode  head;
 	airportList head;
-	airportList temp,p;
 
+	// Save the argument as something friendlier named
 	searchedCity foundCity = *argp;
-	printf("%s, %s, %f, %f\n", foundCity.city, foundCity.state, foundCity.lat, foundCity.lon);
-	
 	
 	kdTree tree = readFile(airport_fpath);
 	
-	printf("tree_created \n");
-	printf("tree root airport_code: %s \n",tree->airport_code);
-	printf("tree root's leftnode airport_code: %s \n\n",(tree->left)->airport_code);
 	airportList found = NULL;
-
+	// This is the best distance we want to start at a high number and work down to closest
 	double best_dist =DBL_MAX;
+	//Create a search node in memory
 	kdNode *searchNode = createNode(foundCity.lat, foundCity.lon,"foundCity.City", "foundCity.state");
-	//kdNode *searchNode = createNode(47.41, -122.20,"foundCity.City", "foundCity.state");
+	//Run a search for nearest neighbors
 	nearest(tree,searchNode, 0 , 2, &found, &best_dist);
 
-	printf("searching for (%g, %g)\n\n", searchNode->dims[0], searchNode->dims[1]);
-	//print out results
 	head = found;
-	//REMOVE ALL NODES AFTER THE 5th
+
+	//Use a pointer to get to the5th node
 	int i = 0;
 	while(i<4){  
 		head=head->next;
 		i++;
 	}
+	//Truncate the linked list so that it ends after the 5th node
 	head->next=NULL;
 	
 
 
 	
-	result.err=0;
+
+	//set the outputs for the union being returned
 	result.placeair_ret_u.list.cityData=foundCity;
 	result.placeair_ret_u.list.list=found;
-	/*
-	i=0
-	while(i<6){
-		printf("found %s: city: %s, state %s, dist %g\n", found->code,found->name,found->state, found->distance);    
-		found=found->next;
-		i++;
-	}*/
+
 	return &result;
 
 }
