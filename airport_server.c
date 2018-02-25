@@ -106,11 +106,13 @@ struct airportNode * createAirNode(char * city, char * airport_code,float distan
 	struct airportNode * temp = (struct airportNode*)malloc(sizeof(struct airportNode));
 	if (temp ==NULL)
 		printf("Error creating airportNode\n");
+	//initialize temp values to null so we dont get seg faults
         temp->code=NULL;
         temp->state = NULL;
 	temp->name = NULL;
         temp->code=airport_code;
         char * token;
+	//tokenize the city value as it currently has both state and city
         token= strtok(city, ",\n" );
         temp->name=token;
         token= strtok(NULL, "\n" );
@@ -334,6 +336,8 @@ placeair_ret *
 coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 {
 	static placeair_ret  result;
+	//free previous result
+        xdr_free((xdrproc_t)xdr_placeair_ret, (char *)&result);
 	airportList node;
 	node = (airportNode*)malloc(sizeof(airportNode));
 	result.err=0;
