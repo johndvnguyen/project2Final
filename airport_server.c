@@ -399,7 +399,7 @@ coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 	head = found;
 	//REMOVE ALL NODES AFTER THE 5th
 	int i = 0;
-	while(i<5){  
+	while(i<4){  
 		head=head->next;
 		i++;
 	}
