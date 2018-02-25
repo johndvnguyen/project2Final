@@ -5,7 +5,7 @@
  */
 
 #include "place.h"
-
+#include <errno.h>
 char* pString(char* city, char* state) {
 	
 	static char userSearch[50];
@@ -64,6 +64,13 @@ send_place_prog_1(char *host, char *city, char *state)
 		clnt_perror (clnt, "call failed");
 	}
 
+	// Check to see if error was sent back by server
+	if (result_1->err != 0) {
+		errno = result_1->err;
+		perror("Unable to perform search");
+		exit(1);
+
+	}
 	// Print the results
 	printf("%s\n", result_1->placeair_ret_u.list.list->code);
 	airportList found = result_1->placeair_ret_u.list.list; 
