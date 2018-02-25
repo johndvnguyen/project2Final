@@ -12,30 +12,36 @@
 
 #define CHAR_SIZE 122
 
-extern char* airportHost;
-output sharedOutput;
+extern char* airportHost;	// To hold airport host from place_svc
+output sharedOutput;		// To hold results from airport server
 
 // Trie struct
 struct Trie {
-	int isLeaf;
-	struct searchedCity* place;
-	struct Trie* character[CHAR_SIZE];
+	int isLeaf;				// Designate leaf node
+	struct searchedCity* place;		// Hold the place
+	struct Trie* character[CHAR_SIZE];	// Array of trie nodes for each
+						// letter of the alphabet
 };
 
 // Create Trie Node
 struct Trie* createTrieNode() {
+
+	// Allocate memory
 	struct Trie* node = (struct Trie*)malloc(sizeof(struct Trie));
 	int i;
 	
+	// Set leaf to 0 to designate non leaf.
 	node->isLeaf = 0;
 
+	// Fill the array of trie nodes with Null
 	for (i = 0; i < CHAR_SIZE; i++)
 		node->character[i] = NULL;
 
+	// Return the trie node
 	return node;
 }
 
-
+// Prep the string for designated formate (only characters of the alphabet, lowercase)
 char* prepString(char* city, char* state) {
 	
 	static char userSearch[50];
@@ -64,7 +70,7 @@ char* prepString(char* city, char* state) {
 	return &userSearch[0];
 }
 
-struct searchedCity* search(struct Trie* head, struct searchedCity* place) {
+struct searchedCity* search(struct Trie* head, char* str) {
 
 	struct searchedCity* node = 
 	(struct searchedCity*)malloc(sizeof(struct searchedCity));
@@ -72,13 +78,11 @@ struct searchedCity* search(struct Trie* head, struct searchedCity* place) {
 	if(head == NULL)
 		return node;
 	
-	char *str;
 	struct Trie* curr = head;
 
 	
 	
 	// 
-	str = prepString(place->city, place->state);
 	while (*str) { 
 		curr = curr->character[*str - 'a'];
 
@@ -274,31 +278,11 @@ send_coord_prog_1(searchedCity *place)
 {
 	CLIENT *clnt;
 	placeair_ret  *result_1;
-	searchedCity * rCity;
 	searchedCity  coord_1_arg;
 	
-	// Place node to hold return of search
-	struct searchedCity*  airport_arg = (struct searchedCity*)malloc(sizeof(struct searchedCity));
+	coord_1_arg = *place;
 
-	// Trie to hold return of trie
-	struct Trie* trie = (struct Trie*)malloc(sizeof(struct Trie));
-
-	// Read file into trie	
-	trie = readFile();
-
-	// Search
-	rCity = search(trie, place);
-	coord_1_arg = *rCity;
-	
-	// Print Message
-	if(place->lon == 0) {
-		printf("NOT FOUND or too vague\n");
-		//result_1.err = 1;
-		return &result_1;
-	} else {
-		printf("%s, %s: %f, %f\n",
-		place->city,place->state,place->lat,place->lon);
-	}
+	printf("searched city: %s, %s, %f, %f\n", coord_1_arg.city, coord_1_arg.state, coord_1_arg.lat, coord_1_arg.lon);
 
 #ifndef	DEBUG
 	clnt = clnt_create (airportHost, SEND_COORD_PROG, SEND_COORD_VERS, "udp");
@@ -325,10 +309,13 @@ placeair_ret *
 place_1_svc(placeName *argp, struct svc_req *rqstp)
 {
 	static placeair_ret  result;
-	airportList node;
-	airportList *nodePointer;
-	searchedCity foundPlace;
-	result.err = 0;
+        searchedCity foundPlace;
+        result.err = 0;
+        searchedCity * rCity;
+        airportList node;
+        airportList *nodePointer;
+        //searchedCity foundPlace;
+        result.err = 0;
 	
 	printf("%s\n", *argp);
 	nodePointer = &result.placeair_ret_u.list.list;
@@ -348,13 +335,38 @@ place_1_svc(placeName *argp, struct svc_req *rqstp)
 	*nodePointer = (airportList)NULL;
 		
 
-	foundPlace.city = "Seattle";
+	/*foundPlace.city = "Seattle";
 	foundPlace.state = "WA";
 	foundPlace.lat = 100.1;
 	foundPlace.lon = 100.2;
-	//after finding place we store it in the sharedOutput
-	sharedOutput.cityData=foundPlace;
+*/	//after finding place we store it in the sharedOutput
 
+
+	// Place node to hold return of search
+	struct searchedCity*  airport_arg = (struct searchedCity*)malloc(sizeof(struct searchedCity));
+
+	// Trie to hold return of trie
+	struct Trie* trie = (struct Trie*)malloc(sizeof(struct Trie));
+
+	// Read file into trie	
+	trie = readFile();
+
+	// Search
+	rCity = search(trie, *argp);
+	foundPlace = *rCity;
+	
+	// Print Message
+	if(foundPlace.lon == 0) {
+		printf("NOT FOUND or too vague\n");
+		//result_1.err = 1;
+		return &result;
+	} else {
+		printf("%s, %s: %f, %f\n",
+		foundPlace.city,foundPlace.state,foundPlace.lat,foundPlace.lon);
+	}
+
+	sharedOutput.cityData=foundPlace;
+	
 	printf("1: %s, %s, %f, %f\n", foundPlace.city, foundPlace.state, foundPlace.lat, foundPlace.lon);
 	//Temp dummy list data
 	/*
