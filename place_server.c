@@ -6,36 +6,30 @@
 
 #define CHAR_SIZE 122
 
-extern char* airportHost;	// To hold airport host from place_svc
-output sharedOutput;		// To hold results from airport server
+extern char* airportHost;
+output sharedOutput;
 
 // Trie struct
 struct Trie {
-	int isLeaf;				// Designate leaf node
-	struct searchedCity* place;		// Hold the place
-	struct Trie* character[CHAR_SIZE];	// Array of trie nodes for each
-						// letter of the alphabet
+	int isLeaf;
+	struct searchedCity* place;
+	struct Trie* character[CHAR_SIZE];
 };
 
 // Create Trie Node
 struct Trie* createTrieNode() {
-
-	// Allocate memory
 	struct Trie* node = (struct Trie*)malloc(sizeof(struct Trie));
 	int i;
 	
-	// Set leaf to 0 to designate non leaf.
 	node->isLeaf = 0;
 
-	// Fill the array of trie nodes with Null
 	for (i = 0; i < CHAR_SIZE; i++)
 		node->character[i] = NULL;
 
-	// Return the trie node
 	return node;
 }
 
-// Prep the string for designated formate (only characters of the alphabet, lowercase)
+
 char* prepString(char* city, char* state) {
 	
 	static char userSearch[50];
@@ -66,8 +60,10 @@ char* prepString(char* city, char* state) {
 	return &userSearch[0];
 }
 
+
 // Function to search the trie for the users desire place, return searchedCity of place if found
 struct searchedCity* search(struct Trie* head, char* str) {
+
 
 	// Allocate memory for a searched city node
 	struct searchedCity* node = 
@@ -80,9 +76,11 @@ struct searchedCity* search(struct Trie* head, char* str) {
 	if(head == NULL)
 		return NULL;
 	
+
 	// Assign head to current
 	struct Trie* curr = head;
 	
+
 	// Search to the end of the trie with the desired string
 	while (*str) { 
 		// Assign current node to node index representing character
@@ -272,14 +270,15 @@ struct Trie * createPrefixTrie(){
 void
 send_coord_prog_1(searchedCity *place)
 {
+
 	CLIENT *clnt;			// Client
 	placeair_ret  *result_1;	// Holds results from airport server
 	searchedCity  airportArg;	// Holds searchedCity place
 	
 	// Assign place to airport argument
 	airportArg = *place;		
-
 	printf("searched city: %s, %s, %f, %f\n", airportArg.city, airportArg.state, airportArg.lat, airportArg.lon);
+
 
 #ifndef	DEBUG
 	
@@ -325,7 +324,8 @@ send_coord_prog_1(searchedCity *place)
 placeair_ret *
 place_1_svc(placeName *argp, struct svc_req *rqstp)
 {
-	static placeair_ret  result;	// To hold results
+
+	      static placeair_ret  result;	// To hold results
         searchedCity foundPlace;	// To hold result from search query
         searchedCity *rCity;		// To accept the return from 
 					// search query
@@ -354,6 +354,7 @@ place_1_svc(placeName *argp, struct svc_req *rqstp)
 	
 	// Assign found place to city data
 	sharedOutput.cityData = foundPlace;
+
 	
 	// Airport server nearest neighbor search
 	send_coord_prog_1(&foundPlace);
