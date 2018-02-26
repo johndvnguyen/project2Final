@@ -16,7 +16,7 @@ send_coord_prog_1(searchedCity* place)
 	CLIENT *clnt;			// Client
 	placeair_ret  *result_1;	// Holds results from airport server
 	searchedCity  airportArg;	// Holds searchedCity place
-	
+
 	// Assign place to airport argument
 	airportArg = *place;		
 
@@ -35,7 +35,6 @@ send_coord_prog_1(searchedCity* place)
 
 	// Make rpc call to airport server
 	result_1 = coord_1(&airportArg, clnt);
-
 
 	// Check if call was successfull
 	if (result_1 == (placeair_ret * ) NULL) {
