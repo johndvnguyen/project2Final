@@ -23,12 +23,12 @@ send_place_prog_1(char *host, char *city, char *state)
 	// Prep the string to send to server
 	str = prepString(city, state);
 
+	printf("%s\n", str);
 	// Assign prepared string to place_arg
 	place_arg = &str[0];
 
 	// Query the place server for the 5 nearest airports
 	result_1 = place_1(&place_arg, clnt);
-
 
 	// Check if function return was successful
 	if (result_1 == (placeair_ret *) NULL) {
@@ -38,17 +38,23 @@ send_place_prog_1(char *host, char *city, char *state)
 	// Check to see if error was sent back by server
 	if (result_1->err != 0) {
 		errno = result_1->err;
-		perror("Unable to perform search");
+		if(errno == 1){
+			printf("Query parameter too vague, try again\n");
+		} else if(errno == 2) {
+			printf("Place not found\n");
+		} else {
+		perror("Error\n");
+		}
 		exit(1);
-
 	}
 	
-	// Print the results
+	// Assign results to variables
 	airportList found = result_1->placeair_ret_u.list.list; 
 	searchedCity foundPlace = result_1->placeair_ret_u.list.cityData;
-	
+	// Print the found place
 	printf("%s, %s: %f, %f\n", foundPlace.city, foundPlace.state, foundPlace.lat, foundPlace.lon);
-	
+
+	// Print the found airports
 	while(found) {
 		printf("code=%s, name=%s, state=%s, distance:%.2f miles\n", found->code,found->name,found->state, found->distance);    
 		found=found->next;
@@ -69,8 +75,8 @@ main (int argc, char *argv[])
 	char *city;		// Place city
 	char *state;		// Place state
 
-	if (argc < 4) {
-		printf ("usage: %s server_host\n", argv[0]);
+	if (argc < 4 || argc > 4) {
+		printf ("usage: %s server_host city state (note: be sure to use \" \" around citys with multiple words.)\n", argv[0]);
 		exit (1);
 	}
 	

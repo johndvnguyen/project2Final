@@ -3,32 +3,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "trie.h"
 
-//#define CHAR_SIZE 122
-
-extern char* airportHost;
-extern struct Trie* trie;
-output sharedOutput;
+extern char* airportHost;	// Airport client
+extern struct Trie* trie;	// Trie Structure
+extern int tooVagueFlag;	// Search Flag
+output sharedOutput;		// Global placeair struct
 
 // Airport Client
 void
-send_coord_prog_1(searchedCity *place)
+send_coord_prog_1(searchedCity* place)
 {
-
 	CLIENT *clnt;			// Client
 	placeair_ret  *result_1;	// Holds results from airport server
 	searchedCity  airportArg;	// Holds searchedCity place
 	
 	// Assign place to airport argument
 	airportArg = *place;		
-	printf("searched city: %s, %s, %f, %f\n", airportArg.city, airportArg.state, airportArg.lat, airportArg.lon);
-
 
 #ifndef	DEBUG
 	
 	// Open connection
 	clnt = clnt_create (airportHost, SEND_COORD_PROG, SEND_COORD_VERS, "udp");
+	
 	// If connection fails, notify and exit
 	if (clnt == NULL) {
 		clnt_pcreateerror (airportHost);
@@ -40,13 +36,11 @@ send_coord_prog_1(searchedCity *place)
 	// Make rpc call to airport server
 	result_1 = coord_1(&airportArg, clnt);
 
+
 	// Check if call was successfull
 	if (result_1 == (placeair_ret * ) NULL) {
 		clnt_perror (clnt, "call failed null");
 	}
-
-	printf("returned from airport server\n");
-	printf("%s\n", result_1->placeair_ret_u.list.list->code);
 
 	// Assign airport data to global struct
 	sharedOutput.list=result_1->placeair_ret_u.list.list;
@@ -71,24 +65,21 @@ place_1_svc(placeName *argp, struct svc_req *rqstp)
 {
 	static placeair_ret  result;	// To hold results
         searchedCity foundPlace;	// To hold result from search query
-        searchedCity *rCity;		// To accept the return from 
-					// search query
+        struct searchedCity * rCity;	// Holds return of search query
         result.err = 0;			// Assign error number to 0
-	
-	// Trie to hold return of trie
-	struct Trie* trie = (struct Trie*)malloc(sizeof(struct Trie));
 
-	// Create trie with the contents of the file
-	trie = createPrefixTrie();
-	
-	// Search the trie for place
+	// Perform the search
 	rCity = search(trie, *argp);
-	
-	// Check if place was found
-	if(rCity->lon == 0.0){
-		printf("NOT FOUND or too vague\n");
+
+	// Check if place was found	
+	if(tooVagueFlag){
+		
 		// Set error number
-		result.err = 1;
+		result.err = tooVagueFlag;
+	
+		// Reset Flag
+		tooVagueFlag = 0;
+
 		// Return error number
 		return &result;
 	} 
@@ -98,7 +89,6 @@ place_1_svc(placeName *argp, struct svc_req *rqstp)
 	
 	// Assign found place to city data
 	sharedOutput.cityData = foundPlace;
-
 	
 	// Airport server nearest neighbor search
 	send_coord_prog_1(&foundPlace);
@@ -108,5 +98,6 @@ place_1_svc(placeName *argp, struct svc_req *rqstp)
 
 	// Return data to client
 	return &result;
+
 }
 
