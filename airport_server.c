@@ -19,18 +19,19 @@ typedef struct airportNode *airportList;
 
 extern char * airport_fpath;
 
-
+// KDNode for the KD Tree
 struct kdNode {
-	float dims[2];
-	char city[100];
-	char airport_code[4];
-	kdNode* left;
-	kdNode* right;
-	char split_dim;
+	float dims[2]; // Holds two dimensions latitude, longitude
+	char city[100]; //City value max 100 chars
+	char airport_code[4]; // Airport code is 3 characters and a null terminator
+	kdNode* left; // Left branch of the tree
+	kdNode* right; // right branch of the tree
+	char split_dim; // For tree information lets you know which dimension was split. 
 };
-
+//Function make_tree prototype
 kdNode * make_tree(struct kdNode *t, int len, int i, int dim);
 
+//Swap function that trades the values of nodes but not children
 void swap(struct kdNode *x, struct kdNode *y) {
     // need to swap data but not the children nodes
     double tmpNode[2];
@@ -49,7 +50,7 @@ void swap(struct kdNode *x, struct kdNode *y) {
     memcpy(y->airport_code, tmpAirport, sizeof(tmpAirport));
     
 }
-
+//Mathematical functions given by the assignment document
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 /*:: This function converts decimal degrees to radians :*/
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
@@ -85,7 +86,7 @@ double distance(double lat1, double lon1, double lat2, double lon2, char unit) {
 }
 
 
-
+//Takes in parameters and creates a kdNode and allocates memory
 struct kdNode * createNode(latitude lat, longitude lon, char * city, char * airport_code)
 {
 
@@ -99,7 +100,7 @@ struct kdNode * createNode(latitude lat, longitude lon, char * city, char * airp
 	temp->left = temp->right = NULL;
 	return temp;
 }
-
+//Creates airportNode and allocates memory
 struct airportNode * createAirNode(char * city, char * airport_code,float distance,airportNode * next)
 {
 
@@ -123,7 +124,7 @@ struct airportNode * createAirNode(char * city, char * airport_code,float distan
 	return temp;
 }
 
-
+//Checks a filepath and counts the number of lines
 int getLineCount(char * path){
 	FILE * fp;
 	int count = 0;
@@ -137,7 +138,7 @@ int getLineCount(char * path){
 	return count;
 }
 
-
+//Reads in a file and creates a kdtree using non blank lines 
 struct kdNode * readFile(char * path){
 	int lineCount = getLineCount(path);
 	kdNode nodeArray[lineCount];
@@ -145,7 +146,6 @@ struct kdNode * readFile(char * path){
 	
 	FILE * fp;
 	fp = fopen(path,"r");
-	printf("file Opened");
 	char line[255]="";
 	char airport_code[4]="";
 	char city[100] = "";
@@ -162,8 +162,6 @@ struct kdNode * readFile(char * path){
 	if (fgets(line,200,fp)==NULL);
 
 	while(1){
-		//struct placeNode * newNode = (struct placeNode*)malloc(sizeof(struct placeNode));
-		//check node was created successfully if fail
 		
 		
 		if (fgets(line,200,fp)==NULL) break;
@@ -184,19 +182,14 @@ struct kdNode * readFile(char * path){
 				strncpy(airport_code,&token[1],3);
 				airport_code[3]='\0';
 				//Airport code
-
 				token= strtok(NULL, " " );
-				
 				
 				//Latitude
                                 lat = atof(token);
 
-                                
 				token= strtok(NULL, " " );
 				lon = atof(token);
 				//Longitude
-
-				//token= strtok(NULL, " " );
 				
 				kdNode  temp = *(createNode(lat,lon,city,airport_code));
 				
@@ -217,7 +210,7 @@ struct kdNode * readFile(char * path){
 }
 
 
-/* see quickselect method */
+// Uses a quicksort/select to find the median value in an array of kdNodes based on either latitude or longitude
 struct kdNode * find_median(struct kdNode *start, struct kdNode *end, int idx)
 {
     //printf("Median calculation begins\n");
@@ -249,7 +242,9 @@ struct kdNode * find_median(struct kdNode *start, struct kdNode *end, int idx)
         else        start = store;
     }
 }
-
+//Recursive function to take in an array of nodes and generate a kdTree.
+//Alternates latitude and logitude on levels of the tree
+// Based on and adapted from https://rosettacode.org/wiki/K-d_tree
 kdNode * make_tree(struct kdNode *t, int len, int i, int dim)
 {
     struct kdNode *n;
@@ -331,28 +326,24 @@ void nearest(struct kdNode *root, struct kdNode *nd, int i, int dim,
  
 
 
-
+//Airport Server code
 placeair_ret *
 coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 {
+	//Static variable to pass as a return for the RPC call
 	static placeair_ret  result;
-	//free previous result
-        xdr_free((xdrproc_t)xdr_placeair_ret, (char *)&result);
+	//
 	airportList node;
-	node = (airportNode*)malloc(sizeof(airportNode));
 	result.err=0;
-	if(node == (airportNode *) NULL) {
-		//result.err = errno;
-		return(&result);
-	}
-
+	//Create a pointer to start at the 
 	airportList head;
 
 	// Save the argument as something friendlier named
 	searchedCity foundCity = *argp;
-	
+
+	//create the kdTree using the airport pate
 	kdTree tree = readFile(airport_fpath);
-	
+	// define an airportlist and intialize to nnull	
 	airportList found = NULL;
 	// This is the best distance we want to start at a high number and work down to closest
 	double best_dist =DBL_MAX;
@@ -360,10 +351,10 @@ coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 	kdNode *searchNode = createNode(foundCity.lat, foundCity.lon,"foundCity.City", "foundCity.state");
 	//Run a search for nearest neighbors
 	nearest(tree,searchNode, 0 , 2, &found, &best_dist);
-
+	//Set a pointer to the start of the found airportnode linked list
 	head = found;
 
-	//Use a pointer to get to the5th node
+	//Use a pointer to get to the 5th node
 	int i = 0;
 	while(i<4){  
 		head=head->next;
@@ -371,10 +362,6 @@ coord_1_svc(searchedCity *argp, struct svc_req *rqstp)
 	}
 	//Truncate the linked list so that it ends after the 5th node
 	head->next=NULL;
-	
-
-
-	
 
 	//set the outputs for the union being returned
 	result.placeair_ret_u.list.cityData=foundCity;
