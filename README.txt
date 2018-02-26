@@ -26,12 +26,14 @@ Weakness - Inititially we were trying to return an AirportList from the airport 
 Strengths - By the end of the project I was much more familiar with the CMD debugger gdb, and using it to trace memory addresses. 
 
 Ryan's contributions:
-I worked on implementing the prefix trie and search.    I set up the connection
+I worked on implementing the prefix trie and search that was adapted from
+https://www.geeksforgeeks.org/trie-insert-and-search/.  I set up the connection
 of servers from places client, to the middle server/client, and airport server.
 I troubleshooted a vast number of segmentation faults.
-Strength: Commitment.  It's hard for me to stop when there are bugs.
-Weakness: Pointers and memory.  In bootcamp we learned Java.  C is new and my
-knowledge if fairly basic.  After this project I am more proficient.
+Strength: Commitment.  It's hard for me to stop when there are bugs.  Using gdb for
+for troublshooting the segmentation faults.
+Weakness: Pointers.  In bootcamp we learned Java.  C is new and my knowledge if fairly 
+basic.  After this project I am more proficient.
 
 How to run the Airport Search Program
 Extract the content of the zipped folder
