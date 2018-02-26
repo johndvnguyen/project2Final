@@ -12,7 +12,7 @@ inserted word is stored.  During search, the index is checked corresponding
 to each letter of the search word.  It continues until there are no more characters.  
 If the node has 2 child, the search is too vague.
 
-For the Airport Search we used a KD tree with two dimensions latitude and logitude. 
+For the Airport Search we used a KD tree with two dimensions latitude and logitude. An array of kdNodes were created from the given text file. Using this array we used a quick sort algorithm to find the media value and start converting the array into a tree structure. Once the tree was created, we used a nearest neighbor algorithm to search for the nearest airports given a search latitude and logitude from the middle serve. 
 A linked list was used to store the 5 closest airports.
 
 John's contributions.
@@ -22,6 +22,8 @@ a simple KDTree, as well as the nearest neighbor. The code used a quick sort to 
 the median value from an array. While this returned the nearest neighbor I decided 
 to use a priority queue to save the nodes that were visited along the traversal and order 
 by distance. The code used for reference for the priority queue using a linked list was from: https://www.geeksforgeeks.org/priority-queue-using-linked-list/
+Weakness - Inititially we were trying to return an AirportList from the airport server, this caused large delays due to numerous seg faults and investigation. We eventually moved to using a Struct and union similar to the second project and this resolved many of the issues. Another weakness for this project was the in depth use of pointers and passing values between functions and programs. Without an IDE or debugger this was a lot more challenging. 
+Strengths - By the end of the project I was much more familiar with the CMD debugger gdb, and using it to trace memory addresses. 
 
 Ryan's contributions:
 I worked on implementing the prefix trie and search.    I set up the connection
