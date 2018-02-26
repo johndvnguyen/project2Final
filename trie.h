@@ -74,7 +74,7 @@ char* prepString(char* city, char* state) {
 	return &userSearch[0];
 }
 
-// Function to search the trie for the users desire place, return searchedCity of place if found
+// Function to search the trie for the users desire place, return searchedCity of place if found.   Adapted from ***//www.geeksforgeeks.org/trie-insert-and-search/***	
 struct searchedCity * search(struct Trie* head, char* str) {
 
 	// Used to hold count of number of children of trie node
@@ -176,7 +176,7 @@ int countChildren(struct Trie* curr) {
 }
 
 
-// Function to trim the city
+// Function to trim the city string
 void trimCity(char *city){
 	
 	char *pos = strstr(city,"  ");     // Position

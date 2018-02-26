@@ -23,7 +23,6 @@ send_place_prog_1(char *host, char *city, char *state)
 	// Prep the string to send to server
 	str = prepString(city, state);
 
-	printf("%s\n", str);
 	// Assign prepared string to place_arg
 	place_arg = &str[0];
 
@@ -51,14 +50,14 @@ send_place_prog_1(char *host, char *city, char *state)
 	// Assign results to variables
 	airportList found = result_1->placeair_ret_u.list.list; 
 	searchedCity foundPlace = result_1->placeair_ret_u.list.cityData;
+	
 	// Print the found place
-	printf("%s, %s: %f, %f\n", foundPlace.city, foundPlace.state, foundPlace.lat, foundPlace.lon);
+	printf("\n%s, %s: %f, %f\n\n", foundPlace.city, foundPlace.state, foundPlace.lat, foundPlace.lon);
 
 	// Print the found airports
 	while(found) {
-		printf("code=%s, name=%s, state=%s, distance:%.2f miles\n", found->code,found->name,found->state, found->distance);    
+		printf("code=%s, name=%s, state=%s, distance:%.2f miles\n\n", found->code,found->name,found->state, found->distance);    
 		found=found->next;
-
 	}
 #ifndef	DEBUG
 	
@@ -67,7 +66,7 @@ send_place_prog_1(char *host, char *city, char *state)
 #endif	 /* DEBUG */
 }
 
-
+/* Place client main */
 int
 main (int argc, char *argv[])
 {
@@ -84,6 +83,8 @@ main (int argc, char *argv[])
 	host = argv[1];
 	city = argv[2];
 	state = argv[3];
+
+	// Send to the place client-side program
 	send_place_prog_1 (host, city, state);
 exit (0);
 }
